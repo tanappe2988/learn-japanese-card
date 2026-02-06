@@ -151,6 +151,8 @@
                     <line x1="110" y1="100" x2="70" y2="60" stroke="#ffa500" stroke-width="2" />
                     <circle cx="70" cy="60" r="3" fill="#ff0000" />
                 </svg>
+                <img id="card-image" src="" alt="Vocabulary Image"
+                    style="display: none; max-width: 100%; max-height: 100%;">
             </div>
             <div class="text-area">
                 <div id="jp-word" class="jp-word">...</div>
@@ -206,11 +208,11 @@
         // Vocabulary Data (Based on Phase 1 Curriculum)
         const vocabularyList = [
             // Day 1: Greetings & Self-intro
-            { jp: "おはよう", kh: "អរុណសួស្តី (Arun su-sdei)", romaji: "Ohayou" },
-            { jp: "ありがとう", kh: "អរគុណ (Orkun)", romaji: "Arigatou" },
-            { jp: "さようなら", kh: "លាហើយ (Lie hau)", romaji: "Sayounara" },
-            { jp: "わたし", kh: "ខ្ញុំ (Khnom)", romaji: "Watashi" },
-            { jp: "なまえ", kh: "ឈ្មោះ (Chhmuoh)", romaji: "Namae" },
+            { jp: "おはよう", kh: "អរុណសួស្តី (Arun su-sdei)", romaji: "Ohayou", image: "assets/images/ohayou.png" },
+            { jp: "ありがとう", kh: "អរគុណ (Orkun)", romaji: "Arigatou", image: "assets/images/arigatou.png" },
+            { jp: "さようなら", kh: "លាហើយ (Lie hau)", romaji: "Sayounara", image: "assets/images/sayounara.png" },
+            { jp: "わたし", kh: "ខ្ញុំ (Khnom)", romaji: "Watashi", image: "assets/images/watashi.png" },
+            { jp: "なまえ", kh: "ឈ្មោះ (Chhmuoh)", romaji: "Namae", image: "assets/images/namae.png" },
 
             // Day 2: Classroom Instructions
             { jp: "みてください", kh: "សូមមើល (Som Merl)", romaji: "Mitekudasai" },
@@ -230,9 +232,9 @@
         // Conversation Data (Scenarios using daily words)
         const conversationData = {
             1: [
-                { type: 'conv', question: "朝、先生に会いました (Morning)", answer_jp: "おはよう", answer_romaji: "Ohayou", answer_kh: "Good morning" },
-                { type: 'conv', question: "何かをもらいました (Received gift)", answer_jp: "ありがとう", answer_romaji: "Arigatou", answer_kh: "Thank you" },
-                { type: 'conv', question: "帰る時 (Leaving)", answer_jp: "さようなら", answer_romaji: "Sayounara", answer_kh: "Goodbye" }
+                { type: 'conv', question: "朝、先生に会いました (Morning)", answer_jp: "おはよう", answer_romaji: "Ohayou", answer_kh: "Good morning", image: "assets/images/ohayou.png" },
+                { type: 'conv', question: "何かをもらいました (Received gift)", answer_jp: "ありがとう", answer_romaji: "Arigatou", answer_kh: "Thank you", image: "assets/images/arigatou.png" },
+                { type: 'conv', question: "帰る時 (Leaving)", answer_jp: "さようなら", answer_romaji: "Sayounara", answer_kh: "Goodbye", image: "assets/images/sayounara.png" }
             ],
             2: [
                 { type: 'conv', question: "先生を呼びます (Call teacher)", answer_jp: "せんせい", answer_romaji: "Sensei", answer_kh: "Teacher" },
@@ -307,6 +309,19 @@
             document.getElementById('romaji-word').textContent = word.romaji;
             document.getElementById('kh-word').textContent = word.kh;
 
+            // Update Image
+            const imgElement = document.getElementById('card-image');
+            const svgElement = document.querySelector('.image-area svg');
+
+            if (word.image) {
+                imgElement.src = word.image;
+                imgElement.style.display = 'block';
+                svgElement.style.display = 'none';
+            } else {
+                imgElement.style.display = 'none';
+                svgElement.style.display = 'block';
+            }
+
             // Update Counter
             document.getElementById('word-counter').textContent = `Vocabulary: ${currentWordIndex + 1} / ${dailyWords.length}`;
 
@@ -335,6 +350,19 @@
             document.getElementById('jp-word').textContent = conv.question; // Teacher says
             document.getElementById('romaji-word').textContent = conv.answer_romaji;
             document.getElementById('kh-word').textContent = `${conv.answer_jp} (${conv.answer_kh})`; // Answer format
+
+            // Update Image (if exists for conversation)
+            const imgElement = document.getElementById('card-image');
+            const svgElement = document.querySelector('.image-area svg');
+
+            if (conv.image) {
+                imgElement.src = conv.image;
+                imgElement.style.display = 'block';
+                svgElement.style.display = 'none';
+            } else {
+                imgElement.style.display = 'none';
+                svgElement.style.display = 'block';
+            }
 
             // Update Counter
             document.getElementById('word-counter').textContent = `Conversation: ${currentConvIndex + 1} / ${dailyConvs.length}`;
