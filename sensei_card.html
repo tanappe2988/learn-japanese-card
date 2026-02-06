@@ -5,6 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vocabulary Card: Sensei</title>
+    <!-- Add html2canvas for screenshot functionality -->
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <style>
         body {
             margin: 0;
@@ -75,6 +77,32 @@
             margin-bottom: 10px;
         }
 
+        /* Teacher Tools Styles */
+        .teacher-tools {
+            margin-top: 20px;
+            padding: 10px;
+            background: #e8e8e8;
+            border-radius: 8px;
+            display: flex;
+            gap: 10px;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .tool-btn {
+            font-size: 14px;
+            padding: 5px 15px;
+            cursor: pointer;
+            border: 1px solid #ccc;
+            background: white;
+            border-radius: 4px;
+            color: #555;
+        }
+
+        .tool-btn:hover {
+            background: #f9f9f9;
+        }
+
         /* State classes */
         .card.hidden .text-area {
             opacity: 0;
@@ -132,6 +160,15 @@
             <button id="btn-finish" onclick="finishDay()"
                 style="padding: 10px 20px; font-size: 16px; display: none; background-color: #4CAF50; color: white; border: none; border-radius: 5px;">Finish
                 Day</button>
+        </div>
+
+        <!-- Teacher Tools -->
+        <div class="teacher-tools">
+            <span style="font-size: 12px; font-weight: bold; color: #777;">Teacher Tools</span>
+            <div style="display: flex; gap: 10px;">
+                <button class="tool-btn" onclick="saveQuestionImage()">📸 Save Question</button>
+                <button class="tool-btn" onclick="saveAnswerImage()">📸 Save Answer</button>
+            </div>
         </div>
 
         <!-- Reset Data Button (for testing) -->
@@ -283,6 +320,47 @@
                 currentWordIndex = 0;
                 renderDay();
             }
+        }
+
+        // --- Teacher Tools Functions ---
+
+        async function saveQuestionImage() {
+            const card = document.querySelector("#target-card");
+            const khWord = document.getElementById('kh-word');
+
+            // Force hide answer
+            khWord.classList.add('hidden-answer');
+
+            await captureAndDownload(card, `Day${currentDay}_Word${currentWordIndex + 1}_Question.png`);
+
+            // Restore actual state
+            if (isAnswerVisible) {
+                khWord.classList.remove('hidden-answer');
+            }
+        }
+
+        async function saveAnswerImage() {
+            const card = document.querySelector("#target-card");
+            const khWord = document.getElementById('kh-word');
+
+            // Force show answer
+            khWord.classList.remove('hidden-answer');
+
+            await captureAndDownload(card, `Day${currentDay}_Word${currentWordIndex + 1}_Answer.png`);
+
+            // Restore actual state
+            if (!isAnswerVisible) {
+                khWord.classList.add('hidden-answer');
+            }
+        }
+
+        function captureAndDownload(element, filename) {
+            return html2canvas(element, { scale: 2 }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = filename;
+                link.href = canvas.toDataURL("image/png");
+                link.click();
+            });
         }
 
         // Initialize
