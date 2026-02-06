@@ -62,7 +62,14 @@
             font-size: 48px;
             font-weight: bold;
             color: #333;
-            margin-bottom: 10px;
+            margin-bottom: 5px;
+        }
+
+        .romaji-word {
+            font-size: 20px;
+            color: #666;
+            margin-bottom: 15px;
+            font-style: italic;
         }
 
         .kh-word {
@@ -147,6 +154,7 @@
             </div>
             <div class="text-area">
                 <div id="jp-word" class="jp-word">...</div>
+                <div id="romaji-word" class="romaji-word hidden-answer">...</div>
                 <div id="kh-word" class="kh-word hidden-answer">...</div>
             </div>
             <div class="hint-text">(Tap to reveal answer)</div>
@@ -259,6 +267,7 @@
 
             // Update Text
             document.getElementById('jp-word').textContent = word.jp;
+            document.getElementById('romaji-word').textContent = word.romaji;
             document.getElementById('kh-word').textContent = word.kh;
 
             // Update Counter
@@ -267,6 +276,7 @@
             // Reset Answer Visibility
             isAnswerVisible = false;
             document.getElementById('kh-word').classList.add('hidden-answer');
+            document.getElementById('romaji-word').classList.add('hidden-answer');
 
             // Update Buttons
             document.getElementById('btn-prev').disabled = (currentWordIndex === 0);
@@ -282,11 +292,14 @@
 
         function toggleCard() {
             const khWord = document.getElementById('kh-word');
+            const romajiWord = document.getElementById('romaji-word');
             isAnswerVisible = !isAnswerVisible;
             if (isAnswerVisible) {
                 khWord.classList.remove('hidden-answer');
+                romajiWord.classList.remove('hidden-answer');
             } else {
                 khWord.classList.add('hidden-answer');
+                romajiWord.classList.add('hidden-answer');
             }
         }
 
@@ -327,30 +340,36 @@
         async function saveQuestionImage() {
             const card = document.querySelector("#target-card");
             const khWord = document.getElementById('kh-word');
+            const romajiWord = document.getElementById('romaji-word');
 
             // Force hide answer
             khWord.classList.add('hidden-answer');
+            romajiWord.classList.add('hidden-answer');
 
             await captureAndDownload(card, `Day${currentDay}_Word${currentWordIndex + 1}_Question.png`);
 
             // Restore actual state
             if (isAnswerVisible) {
                 khWord.classList.remove('hidden-answer');
+                romajiWord.classList.remove('hidden-answer');
             }
         }
 
         async function saveAnswerImage() {
             const card = document.querySelector("#target-card");
             const khWord = document.getElementById('kh-word');
+            const romajiWord = document.getElementById('romaji-word');
 
             // Force show answer
             khWord.classList.remove('hidden-answer');
+            romajiWord.classList.remove('hidden-answer');
 
             await captureAndDownload(card, `Day${currentDay}_Word${currentWordIndex + 1}_Answer.png`);
 
             // Restore actual state
             if (!isAnswerVisible) {
                 khWord.classList.add('hidden-answer');
+                romajiWord.classList.add('hidden-answer');
             }
         }
 
