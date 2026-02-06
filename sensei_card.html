@@ -85,62 +85,209 @@
 
 <body>
 
-    <!-- Default state: Hidden (Question Mode). Click to reveal. -->
-    <div id="target-card" class="card hidden" onclick="toggleCard()">
-        <div class="image-area">
-            <!-- Enhanced SVG Illustration: Teacher at Blackboard -->
-            <svg width="300" height="300" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-                <!-- Background: Classroom Wall -->
-                <rect x="0" y="0" width="200" height="200" fill="#f0f8ff" />
-
-                <!-- Blackboard (Green) -->
-                <rect x="20" y="20" width="160" height="90" fill="#2d5a27" rx="3" stroke="#8b4513" stroke-width="4" />
-                <!-- Blackboard Content: "a i u" in Hiragana to imply teaching -->
-                <text x="35" y="60" font-family="sans-serif" font-size="20" fill="white" font-weight="bold">あ い う</text>
-                <text x="35" y="90" font-family="sans-serif" font-size="14" fill="#ddd">a i u</text>
-
-                <!-- Teacher Figure -->
-                <!-- Hair (Bun style) -->
-                <circle cx="130" cy="95" r="18" fill="#333" />
-                <circle cx="130" cy="115" r="8" fill="#333" /> <!-- Bun -->
-
-                <!-- Face -->
-                <ellipse cx="130" cy="100" rx="14" ry="16" fill="#fdd" />
-
-                <!-- Glasses (to look 'smart') -->
-                <circle cx="125" cy="98" r="4" fill="none" stroke="#555" stroke-width="1" />
-                <circle cx="135" cy="98" r="4" fill="none" stroke="#555" stroke-width="1" />
-                <line x1="129" y1="98" x2="131" y2="98" stroke="#555" stroke-width="1" />
-
-                <!-- Smile -->
-                <path d="M 126 108 Q 130 112 134 108" stroke="#000" fill="none" stroke-width="1" />
-
-                <!-- Body (Blazer) -->
-                <path d="M 130 118 L 105 180 L 155 180 Z" fill="#4a90e2" />
-                <!-- White Shirt Collar -->
-                <path d="M 130 118 L 125 125 L 135 125 Z" fill="white" />
-
-                <!-- Arm holding pointer -->
-                <line x1="140" y1="130" x2="110" y2="100" stroke="#fdd" stroke-width="8" stroke-linecap="round" />
-                <!-- Pointer Stick -->
-                <line x1="110" y1="100" x2="70" y2="60" stroke="#ffa500" stroke-width="2" />
-                <circle cx="70" cy="60" r="3" fill="#ff0000" />
-            </svg>
+    <div class="container">
+        <!-- Progress Header -->
+        <div id="progress-header" style="margin-bottom: 20px; text-align: center;">
+            <h2 id="day-display" style="margin: 0; color: #555;">Day 1</h2>
+            <div id="word-counter" style="color: #888;">Word 1 / 5</div>
         </div>
-        <div class="text-area">
-            <div class="jp-word">せんせい</div>
-            <div class="kh-word">សេនសេ</div>
+
+        <!-- Card Component -->
+        <div id="target-card" class="card" onclick="toggleCard()">
+            <div class="image-area">
+                <!-- Keep the Sensei SVG as the "Teacher" character -->
+                <svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="0" y="0" width="200" height="200" fill="#f0f8ff" />
+                    <rect x="20" y="20" width="160" height="90" fill="#2d5a27" rx="3" stroke="#8b4513"
+                        stroke-width="4" />
+                    <text x="35" y="60" font-family="sans-serif" font-size="20" fill="white" font-weight="bold">あ い
+                        う</text>
+                    <text x="35" y="90" font-family="sans-serif" font-size="14" fill="#ddd">a i u</text>
+                    <circle cx="130" cy="95" r="18" fill="#333" />
+                    <circle cx="130" cy="115" r="8" fill="#333" />
+                    <ellipse cx="130" cy="100" rx="14" ry="16" fill="#fdd" />
+                    <circle cx="125" cy="98" r="4" fill="none" stroke="#555" stroke-width="1" />
+                    <circle cx="135" cy="98" r="4" fill="none" stroke="#555" stroke-width="1" />
+                    <line x1="129" y1="98" x2="131" y2="98" stroke="#555" stroke-width="1" />
+                    <path d="M 126 108 Q 130 112 134 108" stroke="#000" fill="none" stroke-width="1" />
+                    <path d="M 130 118 L 105 180 L 155 180 Z" fill="#4a90e2" />
+                    <path d="M 130 118 L 125 125 L 135 125 Z" fill="white" />
+                    <line x1="140" y1="130" x2="110" y2="100" stroke="#fdd" stroke-width="8" stroke-linecap="round" />
+                    <line x1="110" y1="100" x2="70" y2="60" stroke="#ffa500" stroke-width="2" />
+                    <circle cx="70" cy="60" r="3" fill="#ff0000" />
+                </svg>
+            </div>
+            <div class="text-area">
+                <div id="jp-word" class="jp-word">...</div>
+                <div id="kh-word" class="kh-word hidden-answer">...</div>
+            </div>
+            <div class="hint-text">(Tap to reveal answer)</div>
         </div>
-        <div class="hint-text">(Tap to toggle answer)</div>
+
+        <!-- Navigation Controls -->
+        <div class="controls" style="margin-top: 20px; display: flex; gap: 15px;">
+            <button id="btn-prev" onclick="prevWord()" disabled style="padding: 10px 20px; font-size: 16px;">&lt;
+                Prev</button>
+            <button id="btn-next" onclick="nextWord()" style="padding: 10px 20px; font-size: 16px;">Next &gt;</button>
+            <button id="btn-finish" onclick="finishDay()"
+                style="padding: 10px 20px; font-size: 16px; display: none; background-color: #4CAF50; color: white; border: none; border-radius: 5px;">Finish
+                Day</button>
+        </div>
+
+        <!-- Reset Data Button (for testing) -->
+        <div style="margin-top: 30px; font-size: 12px; color: #aaa; cursor: pointer;" onclick="resetProgress()">
+            [Reset Progress]
+        </div>
     </div>
 
-    <script>
-        function toggleCard() {
-            const card = document.getElementById('target-card');
-            card.classList.toggle('hidden');
+    <style>
+        .hidden-answer {
+            opacity: 0;
         }
-    </script>
 
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+    </style>
+
+    <script>
+        // Vocabulary Data (Based on Phase 1 Curriculum)
+        const vocabularyList = [
+            // Day 1: Greetings & Self-intro
+            { jp: "おはよう", kh: "អរុណសួស្តី (Arun su-sdei)", romaji: "Ohayou" },
+            { jp: "ありがとう", kh: "អរគុណ (Orkun)", romaji: "Arigatou" },
+            { jp: "さようなら", kh: "លាហើយ (Lie hau)", romaji: "Sayounara" },
+            { jp: "わたし", kh: "ខ្ញុំ (Khnom)", romaji: "Watashi" },
+            { jp: "なまえ", kh: "ឈ្មោះ (Chhmuoh)", romaji: "Namae" },
+
+            // Day 2: Classroom Instructions
+            { jp: "みてください", kh: "សូមមើល (Som Merl)", romaji: "Mitekudasai" },
+            { jp: "きいてください", kh: "សូមស្តាប់ (Som Sdap)", romaji: "Kiitekudasai" },
+            { jp: "わかりません", kh: "អត់យល់ទេ (Ot Yol Te)", romaji: "Wakarimasen" },
+            { jp: "せんせい", kh: "គ្រូបង្រៀន (Krou)", romaji: "Sensei" },
+            { jp: "がくせい", kh: "សិស្ស (Soh)", romaji: "Gakusei" },
+
+            // Day 3: Objects & Food
+            { jp: "ぺん", kh: "ប៊ិច (Bich)", romaji: "Pen" },
+            { jp: "ほん", kh: "សៀវភៅ (Siev Phov)", romaji: "Hon" },
+            { jp: "すまほ", kh: "ទូរស័ព្ទ (Tuor Sap)", romaji: "Sumaho" },
+            { jp: "つくえ", kh: "តុ (Tok)", romaji: "Tsukue" },
+            { jp: "たべます", kh: "ញ៉ាំ (Nham)", romaji: "Tabemasu" }
+        ];
+
+        const WORDS_PER_DAY = 5;
+        let currentDay = 1;
+        let currentWordIndex = 0; // Index within the day (0-4)
+        let isAnswerVisible = false;
+
+        function init() {
+            // Load progress
+            const savedDay = localStorage.getItem('sensei_card_day');
+            if (savedDay) {
+                currentDay = parseInt(savedDay, 10);
+            }
+            renderDay();
+        }
+
+        function getDailyWords() {
+            const start = (currentDay - 1) * WORDS_PER_DAY;
+            return vocabularyList.slice(start, start + WORDS_PER_DAY);
+        }
+
+        function renderDay() {
+            const dailyWords = getDailyWords();
+
+            if (dailyWords.length === 0) {
+                // Completed all available content
+                document.getElementById('target-card').style.display = 'none';
+                document.getElementById('progress-header').innerHTML = "<h2>All lessons completed!</h2>";
+                document.querySelector('.controls').style.display = 'none';
+                return;
+            }
+
+            document.getElementById('day-display').textContent = `Day ${currentDay}`;
+            renderWord();
+        }
+
+        function renderWord() {
+            const dailyWords = getDailyWords();
+            const word = dailyWords[currentWordIndex];
+
+            // Update Text
+            document.getElementById('jp-word').textContent = word.jp;
+            document.getElementById('kh-word').textContent = word.kh;
+
+            // Update Counter
+            document.getElementById('word-counter').textContent = `Word ${currentWordIndex + 1} / ${dailyWords.length}`;
+
+            // Reset Answer Visibility
+            isAnswerVisible = false;
+            document.getElementById('kh-word').classList.add('hidden-answer');
+
+            // Update Buttons
+            document.getElementById('btn-prev').disabled = (currentWordIndex === 0);
+
+            if (currentWordIndex === dailyWords.length - 1) {
+                document.getElementById('btn-next').style.display = 'none';
+                document.getElementById('btn-finish').style.display = 'inline-block';
+            } else {
+                document.getElementById('btn-next').style.display = 'inline-block';
+                document.getElementById('btn-finish').style.display = 'none';
+            }
+        }
+
+        function toggleCard() {
+            const khWord = document.getElementById('kh-word');
+            isAnswerVisible = !isAnswerVisible;
+            if (isAnswerVisible) {
+                khWord.classList.remove('hidden-answer');
+            } else {
+                khWord.classList.add('hidden-answer');
+            }
+        }
+
+        function nextWord() {
+            if (currentWordIndex < WORDS_PER_DAY - 1) {
+                currentWordIndex++;
+                renderWord();
+            }
+        }
+
+        function prevWord() {
+            if (currentWordIndex > 0) {
+                currentWordIndex--;
+                renderWord();
+            }
+        }
+
+        function finishDay() {
+            if (confirm('Finish Day ' + currentDay + '?')) {
+                currentDay++;
+                currentWordIndex = 0;
+                localStorage.setItem('sensei_card_day', currentDay);
+                renderDay();
+            }
+        }
+
+        function resetProgress() {
+            if (confirm('Reset all progress to Day 1?')) {
+                localStorage.removeItem('sensei_card_day');
+                currentDay = 1;
+                currentWordIndex = 0;
+                renderDay();
+            }
+        }
+
+        // Initialize
+        init();
+    </script>
 </body>
 
 </html>
