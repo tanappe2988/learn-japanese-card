@@ -227,9 +227,30 @@
             { jp: "たべます", kh: "ញ៉ាំ (Nham)", romaji: "Tabemasu" }
         ];
 
+        // Conversation Data (Scenarios using daily words)
+        const conversationData = {
+            1: [
+                { type: 'conv', question: "朝、先生に会いました (Morning)", answer_jp: "おはよう", answer_romaji: "Ohayou", answer_kh: "Good morning" },
+                { type: 'conv', question: "何かをもらいました (Received gift)", answer_jp: "ありがとう", answer_romaji: "Arigatou", answer_kh: "Thank you" },
+                { type: 'conv', question: "帰る時 (Leaving)", answer_jp: "さようなら", answer_romaji: "Sayounara", answer_kh: "Goodbye" }
+            ],
+            2: [
+                { type: 'conv', question: "先生を呼びます (Call teacher)", answer_jp: "せんせい", answer_romaji: "Sensei", answer_kh: "Teacher" },
+                { type: 'conv', question: "わからない時 (Don't understand)", answer_jp: "わかりません", answer_romaji: "Wakarimasen", answer_kh: "I don't understand" },
+                { type: 'conv', question: "注目してほしい時 (Please look)", answer_jp: "みてください", answer_romaji: "Mitekudasai", answer_kh: "Please look" }
+            ],
+            3: [
+                { type: 'conv', question: "ご飯を... (To eat)", answer_jp: "たべます", answer_romaji: "Tabemasu", answer_kh: "Eat" },
+                { type: 'conv', question: "これは何？ (What is this?) -> Pen", answer_jp: "ぺん", answer_romaji: "Pen", answer_kh: "Pen" },
+                { type: 'conv', question: "これは何？ (What is this?) -> Book", answer_jp: "ほん", answer_romaji: "Hon", answer_kh: "Book" }
+            ]
+        };
+
         const WORDS_PER_DAY = 5;
         let currentDay = 1;
         let currentWordIndex = 0; // Index within the day (0-4)
+        let currentConvIndex = 0; // Index within conversation list
+        let learningMode = 'vocab'; // 'vocab' or 'conv'
         let isAnswerVisible = false;
 
         function init() {
@@ -238,12 +259,18 @@
             if (savedDay) {
                 currentDay = parseInt(savedDay, 10);
             }
+            learningMode = 'vocab';
+            currentConvIndex = 0;
             renderDay();
         }
 
         function getDailyWords() {
             const start = (currentDay - 1) * WORDS_PER_DAY;
             return vocabularyList.slice(start, start + WORDS_PER_DAY);
+        }
+
+        function getDailyConvs() {
+            return conversationData[currentDay] || [];
         }
 
         function renderDay() {
@@ -258,12 +285,22 @@
             }
 
             document.getElementById('day-display').textContent = `Day ${currentDay}`;
-            renderWord();
+
+            // Determine Content based on Mode
+            if (learningMode === 'vocab') {
+                renderWord();
+            } else {
+                renderConv();
+            }
         }
 
         function renderWord() {
             const dailyWords = getDailyWords();
             const word = dailyWords[currentWordIndex];
+
+            // Setup UI for Vocab
+            document.getElementById('jp-word').style.color = "#333";
+            document.getElementById('jp-word').style.fontSize = "48px";
 
             // Update Text
             document.getElementById('jp-word').textContent = word.jp;
@@ -271,7 +308,7 @@
             document.getElementById('kh-word').textContent = word.kh;
 
             // Update Counter
-            document.getElementById('word-counter').textContent = `Word ${currentWordIndex + 1} / ${dailyWords.length}`;
+            document.getElementById('word-counter').textContent = `Vocabulary: ${currentWordIndex + 1} / ${dailyWords.length}`;
 
             // Reset Answer Visibility
             isAnswerVisible = false;
@@ -281,7 +318,36 @@
             // Update Buttons
             document.getElementById('btn-prev').disabled = (currentWordIndex === 0);
 
-            if (currentWordIndex === dailyWords.length - 1) {
+            // Navigation Logic
+            document.getElementById('btn-next').style.display = 'inline-block';
+            document.getElementById('btn-finish').style.display = 'none';
+        }
+
+        function renderConv() {
+            const dailyConvs = getDailyConvs();
+            const conv = dailyConvs[currentConvIndex];
+
+            // Setup UI for Conversation Question
+            document.getElementById('jp-word').style.color = "#0066cc"; // Blue for Teacher Question
+            document.getElementById('jp-word').style.fontSize = "32px";
+
+            // Update Text (Question -> Answer)
+            document.getElementById('jp-word').textContent = conv.question; // Teacher says
+            document.getElementById('romaji-word').textContent = conv.answer_romaji;
+            document.getElementById('kh-word').textContent = `${conv.answer_jp} (${conv.answer_kh})`; // Answer format
+
+            // Update Counter
+            document.getElementById('word-counter').textContent = `Conversation: ${currentConvIndex + 1} / ${dailyConvs.length}`;
+
+            // Reset Answer Visibility
+            isAnswerVisible = false;
+            document.getElementById('kh-word').classList.add('hidden-answer');
+            document.getElementById('romaji-word').classList.add('hidden-answer');
+
+            // Update Buttons
+            document.getElementById('btn-prev').disabled = (currentConvIndex === 0 && learningMode === 'conv');
+
+            if (currentConvIndex === dailyConvs.length - 1) {
                 document.getElementById('btn-next').style.display = 'none';
                 document.getElementById('btn-finish').style.display = 'inline-block';
             } else {
@@ -304,16 +370,44 @@
         }
 
         function nextWord() {
-            if (currentWordIndex < WORDS_PER_DAY - 1) {
-                currentWordIndex++;
-                renderWord();
+            if (learningMode === 'vocab') {
+                if (currentWordIndex < WORDS_PER_DAY - 1) {
+                    currentWordIndex++;
+                    renderDay(); // Rerender
+                } else {
+                    // Switch to Conversation Mode
+                    learningMode = 'conv';
+                    currentConvIndex = 0;
+                    alert("Vocabulary check done! Let's practice conversation.");
+                    renderDay();
+                }
+            } else {
+                // Conversation Mode
+                const dailyConvs = getDailyConvs();
+                if (currentConvIndex < dailyConvs.length - 1) {
+                    currentConvIndex++;
+                    renderDay();
+                }
             }
         }
 
         function prevWord() {
-            if (currentWordIndex > 0) {
-                currentWordIndex--;
-                renderWord();
+            if (learningMode === 'vocab') {
+                if (currentWordIndex > 0) {
+                    currentWordIndex--;
+                    renderDay();
+                }
+            } else {
+                // Conversation Mode
+                if (currentConvIndex > 0) {
+                    currentConvIndex--;
+                    renderDay();
+                } else {
+                    // Go back to Vocab
+                    learningMode = 'vocab';
+                    currentWordIndex = WORDS_PER_DAY - 1;
+                    renderDay();
+                }
             }
         }
 
@@ -321,6 +415,8 @@
             if (confirm('Finish Day ' + currentDay + '?')) {
                 currentDay++;
                 currentWordIndex = 0;
+                currentConvIndex = 0;
+                learningMode = 'vocab';
                 localStorage.setItem('sensei_card_day', currentDay);
                 renderDay();
             }
@@ -331,6 +427,8 @@
                 localStorage.removeItem('sensei_card_day');
                 currentDay = 1;
                 currentWordIndex = 0;
+                currentConvIndex = 0;
+                learningMode = 'vocab';
                 renderDay();
             }
         }
@@ -346,7 +444,7 @@
             khWord.classList.add('hidden-answer');
             romajiWord.classList.add('hidden-answer');
 
-            await captureAndShare(card, `Day${currentDay}_Word${currentWordIndex + 1}_Question.png`);
+            await captureAndShare(card, `Day${currentDay}_${learningMode}_${(learningMode === 'vocab' ? currentWordIndex : currentConvIndex) + 1}_Question.png`);
 
             // Restore actual state
             if (isAnswerVisible) {
@@ -364,7 +462,7 @@
             khWord.classList.remove('hidden-answer');
             romajiWord.classList.remove('hidden-answer');
 
-            await captureAndShare(card, `Day${currentDay}_Word${currentWordIndex + 1}_Answer.png`);
+            await captureAndShare(card, `Day${currentDay}_${learningMode}_${(learningMode === 'vocab' ? currentWordIndex : currentConvIndex) + 1}_Answer.png`);
 
             // Restore actual state
             if (!isAnswerVisible) {
