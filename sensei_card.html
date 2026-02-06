@@ -346,7 +346,7 @@
             khWord.classList.add('hidden-answer');
             romajiWord.classList.add('hidden-answer');
 
-            await captureAndDownload(card, `Day${currentDay}_Word${currentWordIndex + 1}_Question.png`);
+            await captureAndShare(card, `Day${currentDay}_Word${currentWordIndex + 1}_Question.png`);
 
             // Restore actual state
             if (isAnswerVisible) {
@@ -364,7 +364,7 @@
             khWord.classList.remove('hidden-answer');
             romajiWord.classList.remove('hidden-answer');
 
-            await captureAndDownload(card, `Day${currentDay}_Word${currentWordIndex + 1}_Answer.png`);
+            await captureAndShare(card, `Day${currentDay}_Word${currentWordIndex + 1}_Answer.png`);
 
             // Restore actual state
             if (!isAnswerVisible) {
@@ -373,13 +373,31 @@
             }
         }
 
-        function captureAndDownload(element, filename) {
-            return html2canvas(element, { scale: 2 }).then(canvas => {
-                const link = document.createElement('a');
-                link.download = filename;
-                link.href = canvas.toDataURL("image/png");
-                link.click();
-            });
+        async function captureAndShare(element, filename) {
+            const canvas = await html2canvas(element, { scale: 2 });
+
+            canvas.toBlob(async (blob) => {
+                const file = new File([blob], filename, { type: "image/png" });
+
+                // Try Web Share API (Mobile)
+                if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                    try {
+                        await navigator.share({
+                            files: [file],
+                            title: 'Vocabulary Card',
+                            text: filename
+                        });
+                    } catch (err) {
+                        console.log('Share failed or cancelled:', err);
+                    }
+                } else {
+                    // Fallback to Download (Desktop)
+                    const link = document.createElement('a');
+                    link.download = filename;
+                    link.href = canvas.toDataURL("image/png");
+                    link.click();
+                }
+            }, 'image/png');
         }
 
         // Initialize
